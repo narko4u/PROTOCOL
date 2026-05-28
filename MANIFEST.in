@@ -1,0 +1,16 @@
+# Include server scripts and docs in the distribution
+include memstore_server.py
+include trakr_server.py
+include guardrail_server.py
+include vitals_server.py
+include healer_server.py
+include orchestrator_server.py
+include protocol.sh
+include README.md
+include LICENSE
+include MEMSTORE.md
+include TRAKR.md
+include GUARDRAIL.md
+include VITALS.md
+include HEALER.md
+include ORCHESTRATOR.md

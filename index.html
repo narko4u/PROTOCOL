@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROTOCOL — The Agent Operating System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a12;
+      --bg-card: #13131e;
+      --bg-card-hover: #1a1a28;
+      --surface: #1e1e30;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --purple: #8b6cf7;
+      --purple-glow: rgba(139,108,247,0.2);
+      --purple-deep: #6d4fe0;
+      --text: #ffffff;
+      --text-secondary: #b8b8d0;
+      --text-muted: #8888a8;
+      --green: #34d399;
+      --pink: #f472b6;
+      --cyan: #22d3ee;
+      --rose: #f43f5e;
+      --amber: #fbbf24;
+      --blue: #60a5fa;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(139,108,247,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(244,114,182,0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── GRID DOTS ─── */
+    .grid-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,18,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex; align-items: center; justify-content: space-between; height: 64px;
+    }
+    .logo {
+      font-weight: 700; font-size: 20px; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: white;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 14px; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #ffffff; }
+    .nav-cta {
+      background: var(--purple); color: white !important;
+      padding: 8px 20px; border-radius: 8px; font-weight: 600;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover { background: var(--purple-deep) !important; box-shadow: 0 0 20px var(--purple-glow); }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center; padding: 120px 0 80px; position: relative;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(139,108,247,0.1); border: 1px solid rgba(139,108,247,0.2);
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 13px; color: var(--purple); font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 64px; font-weight: 800; letter-spacing: -2px;
+      line-height: 1.1; margin-bottom: 20px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 20px; color: var(--text-secondary);
+      max-width: 640px; margin: 0 auto 36px;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 48px; margin-bottom: 40px;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat-value {
+      font-size: 28px; font-weight: 700; color: var(--purple);
+      font-family: var(--mono);
+    }
+    .hero-stat-label {
+      font-size: 13px; color: var(--text-muted); margin-top: 2px;
+    }
+    .hero-buttons {
+      display: flex; gap: 16px; justify-content: center;
+    }
+    .btn-primary {
+      background: var(--purple); color: white; border: none;
+      padding: 14px 32px; border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover {
+      background: var(--purple-deep); box-shadow: 0 0 24px var(--purple-glow); transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: transparent; color: var(--text); border: 1px solid var(--border);
+      padding: 14px 32px; border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--purple); color: var(--purple); background: rgba(139,108,247,0.05);
+    }
+    .btn-ghost {
+      background: transparent; color: var(--text-secondary); border: 1px solid var(--border);
+      padding: 14px 32px; border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; text-decoration: none;
+    }
+    .btn-ghost:hover {
+      border-color: var(--text-secondary); color: var(--text);
+    }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 100px 0; }
+    .section-label {
+      font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--purple); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px; font-weight: 700; letter-spacing: -1px; margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: 18px; color: var(--text-secondary);
+      max-width: 560px; margin-bottom: 48px;
+    }
+
+    /* ─── MODULES GRID ─── */
+    .grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .module-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .module-card:hover {
+      background: var(--bg-card-hover); border-color: var(--border-hover);
+      transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+    .module-number {
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      font-family: var(--mono); margin-bottom: 12px;
+    }
+    .module-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 16px;
+    }
+    .module-card h3 {
+      font-size: 18px; font-weight: 600; margin-bottom: 8px;
+    }
+    .module-desc {
+      font-size: 15px; color: var(--text-secondary); line-height: 1.7;
+    }
+
+    /* ─── PIPELINE ─── */
+    .pipeline {
+      display: flex; flex-direction: column; gap: 0;
+      position: relative;
+    }
+    .pipeline-step {
+      display: flex; align-items: flex-start; gap: 24px;
+      padding: 24px 0; border-bottom: 1px solid var(--border);
+    }
+    .pipeline-step:last-child { border-bottom: none; }
+    .pipeline-num {
+      width: 40px; height: 40px; min-width: 40px;
+      border-radius: 10px; border: 2px solid var(--purple);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px; color: var(--purple);
+      font-family: var(--mono);
+    }
+    .pipeline-content h3 {
+      font-size: 19px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 4px;
+    }
+    .pipeline-content p {
+      font-size: 15px; color: var(--text-secondary);
+    }
+
+    /* ─── COMPLIANCE ─── */
+    .compliance-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      margin-top: 48px;
+    }
+    .compliance-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      transition: all 0.3s; position: relative;
+    }
+    .compliance-card:hover {
+      background: var(--bg-card-hover); border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+    .compliance-article {
+      font-size: 12px; font-weight: 700; letter-spacing: 1px;
+      margin-bottom: 8px; text-transform: uppercase;
+    }
+    .compliance-title {
+      font-size: 18px; font-weight: 700; margin-bottom: 8px;
+    }
+    .compliance-desc {
+      font-size: 14px; color: var(--text-secondary);
+      margin-bottom: 16px; line-height: 1.5;
+    }
+    .compliance-module {
+      font-size: 13px; color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+      margin-right: 4px; vertical-align: middle;
+    }
+    .tag-trakr { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .tag-memstore { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    .tag-vitals { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+    .tag-guardrail { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .tag-healer { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+    .tag-orchestrator { background: rgba(255, 255, 255, 0.08); color: #d4d4d8; }
+
+    /* ─── LICENSE ─── */
+    .license-card {
+      background: var(--bg-card); border: 1px solid var(--purple);
+      border-radius: 20px; padding: 48px;
+      text-align: center; max-width: 600px; margin: 0 auto;
+      box-shadow: 0 0 40px var(--purple-glow);
+      position: relative; overflow: hidden;
+    }
+    .license-card::before {
+      content: '';
+      position: absolute; top: -50%; left: -50%; right: -50%; bottom: -50%;
+      background: radial-gradient(circle at center, rgba(139,108,247,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .license-badge {
+      display: inline-block;
+      background: rgba(139,108,247,0.15); color: var(--purple);
+      font-family: var(--mono); font-size: 13px; font-weight: 600;
+      padding: 6px 16px; border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .license-card h2 {
+      font-size: 48px; font-weight: 800; letter-spacing: -2px;
+      margin-bottom: 4px;
+    }
+    .license-card h2 span {
+      font-size: 18px; font-weight: 500; color: var(--text-muted); letter-spacing: 0;
+    }
+    .license-card p {
+      color: var(--text-secondary); font-size: 16px; margin-bottom: 28px;
+    }
+    .license-features {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      text-align: left; max-width: 400px; margin: 0 auto 28px;
+    }
+    .license-features li {
+      list-style: none; font-size: 14px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .license-features li::before {
+      content: '✓'; color: var(--green); font-weight: 700;
+    }
+
+    /* ─── CLOUD ─── */
+    .cloud-section {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 48px;
+      margin-top: 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+    }
+    .cloud-title {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    .cloud-desc {
+      color: var(--text-secondary); font-size: 16px; margin-bottom: 20px; line-height: 1.7;
+    }
+    .cloud-features {
+      list-style: none;
+    }
+    .cloud-features li {
+      padding: 12px 0; font-size: 15px; color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cloud-features li::before {
+      content: '→'; color: var(--purple); font-weight: 700;
+    }
+    .cloud-features li:last-child { border-bottom: none; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    footer p { font-size: 14px; color: var(--text-muted); }
+    footer a {
+      color: var(--text-secondary); text-decoration: none; font-size: 14px;
+    }
+    footer a:hover { color: var(--text); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .compliance-grid { grid-template-columns: repeat(2, 1fr); }
+      .cloud-section { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      .hero-stats { flex-direction: column; gap: 16px; }
+      .hero-buttons { flex-direction: column; }
+      nav .container { flex-direction: column; height: auto; padding: 12px 24px; gap: 12px; }
+      .nav-links { flex-wrap: wrap; gap: 16px; }
+      .license-features { grid-template-columns: 1fr; }
+      .compliance-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="logo"><div class="logo-icon">P</div> PROTOCOL</div>
+    <ul class="nav-links">
+      <li><a href="#modules">Modules</a></li>
+      <li><a href="#pipeline">Pipeline</a></li>
+      <li><a href="#compliance">Compliance</a></li>
+      <li><a href="#license">License</a></li>
+      <li><a href="https://github.com/narko4u/PROTOCOL" target="_blank">GitHub</a></li>
+      <li><a href="mailto:contact@empirelabs.com.au?subject=PROTOCOL%20Inquiry" class="nav-cta">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">✦ v0.2.0 — 100% MIT Open Source</div>
+    <h1>The <span>Agent</span><br>Operating System</h1>
+    <p>Memory. Audit. Governance. Observability. Self-healing. Six modules, one command, any agent framework.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-value">6</div>
+        <div class="hero-stat-label">Modules</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">∞</div>
+        <div class="hero-stat-label">Unlimited Agents</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">~160ms</div>
+        <div class="hero-stat-label">Pipeline Latency</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">MIT</div>
+        <div class="hero-stat-label">License</div>
+      </div>
+    </div>
+    <div class="hero-buttons">
+      <a href="https://github.com/narko4u/PROTOCOL" class="btn-primary" target="_blank">View on GitHub →</a>
+      <a href="mailto:contact@empirelabs.com.au?subject=PROTOCOL%20Cloud%20Inquiry" class="btn-secondary">PROTOCOL Cloud →</a>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="modules">
+  <div class="container">
+    <div class="section-label">Core Modules</div>
+    <h2 class="section-title">Everything an agent needs</h2>
+    <p class="section-sub">Six purpose-built services that plug into any agent framework. Each runs independently on its own port.</p>
+    <div class="grid">
+      <div class="module-card">
+        <div class="module-number">01 · 8500</div>
+        <div class="module-icon" style="background:rgba(139,108,247,0.1);color:#8b6cf7;">🧠</div>
+        <h3>MEMSTORE</h3>
+        <div class="module-desc">Persistent agent memory with working (in-memory) and long-term (SQLite) tiers. Save, recall, clear across sessions.</div>
+      </div>
+      <div class="module-card">
+        <div class="module-number">02 · 8501</div>
+        <div class="module-icon" style="background:rgba(34,211,238,0.1);color:#22d3ee;">📋</div>
+        <h3>TRAKR</h3>
+        <div class="module-desc">Cryptographic audit trail with SHA-256 Merkle chaining. Every entry is tamper-evident — verify integrity at any time.</div>
+      </div>
+      <div class="module-card">
+        <div class="module-number">03 · 8502</div>
+        <div class="module-icon" style="background:rgba(251,191,36,0.1);color:#fbbf24;">🛡️</div>
+        <h3>GUARDRAIL</h3>
+        <div class="module-desc">Policy & governance engine. Define allowed/blocked actions per agent. Built-in default-deny policy for read-only safety.</div>
+      </div>
+      <div class="module-card">
+        <div class="module-number">04 · 8503</div>
+        <div class="module-icon" style="background:rgba(52,211,153,0.1);color:#34d399;">📊</div>
+        <h3>VITALS</h3>
+        <div class="module-desc">Real-time observability and telemetry. Track errors, latency, throughput per agent. Stream events for external monitoring.</div>
+      </div>
+      <div class="module-card">
+        <div class="module-number">05 · 8504</div>
+        <div class="module-icon" style="background:rgba(244,114,182,0.1);color:#f472b6;">💊</div>
+        <h3>HEALER</h3>
+        <div class="module-desc">Autonomous incident recovery. Detects failures and executes strategies: restart, scale, failover, degrade, or escalate.</div>
+      </div>
+      <div class="module-card">
+        <div class="module-number">06 · 8505</div>
+        <div class="module-icon" style="background:rgba(139,108,247,0.1);color:#8b6cf7;">⚙️</div>
+        <h3>ORCHESTRATOR</h3>
+        <div class="module-desc">Runtime orchestration. Routes actions through the pipeline, exposes unified health endpoint, coordinates cross-module workflows.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-label">Data Flow</div>
+    <h2 class="section-title">~160ms end-to-end</h2>
+    <p class="section-sub">Every agent action flows through the full pipeline. Each module adds its capability; the ORCHESTRATOR ties it together.</p>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-num">1</div>
+        <div class="pipeline-content">
+          <h3>ORCHESTRATOR receives action</h3>
+          <p>Routes the incoming agent action through GUARDRAIL for policy check, MEMSTORE for context recall.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">2</div>
+        <div class="pipeline-content">
+          <h3>GUARDRAIL validates</h3>
+          <p>Checks the action against active policies. Blocks if restricted, allows if permitted, logs every decision.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">3</div>
+        <div class="pipeline-content">
+          <h3>MEMSTORE enriches context</h3>
+          <p>Injects relevant memories into the action context. Agent gets persistent knowledge without manual retrieval.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">4</div>
+        <div class="pipeline-content">
+          <h3>TRAKR records the action</h3>
+          <p>Appends a tamper-evident entry to the Merkle chain. Immutable record of what happened and when.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">5</div>
+        <div class="pipeline-content">
+          <h3>VITALS streams telemetry</h3>
+          <p>Emits the action as a telemetry event. Error rates, latency, and throughput updated in real time.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">6</div>
+        <div class="pipeline-content">
+          <h3>HEALER monitors for incidents</h3>
+          <p>Evaluates the action outcome against health thresholds. Triggers auto-recovery on failure patterns.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPLIANCE -->
+<section id="compliance">
+  <div class="container">
+    <div class="section-label">EU AI Act Ready</div>
+    <h2 class="section-title">Compliance built in, not bolted on</h2>
+    <p class="section-sub">PROTOCOL's architecture directly maps to the EU AI Act's logging, transparency, and record-keeping obligations.</p>
+    <div class="compliance-grid">
+      <div class="compliance-card">
+        <div class="compliance-article" style="color: #60a5fa;">Article 26(6)</div>
+        <div class="compliance-title">Log Retention</div>
+        <p class="compliance-desc">Deployers of high-risk AI systems must keep automatically generated logs for at least six months.</p>
+        <div class="compliance-module"><span class="tag tag-trakr">TRAKR</span> tamper-evident Merkle chain</div>
+        <div class="compliance-module"><span class="tag tag-memstore">MEMSTORE</span> persistent memory storage</div>
+      </div>
+      <div class="compliance-card">
+        <div class="compliance-article" style="color: #4ade80;">Article 19</div>
+        <div class="compliance-title">Automated Logging</div>
+        <p class="compliance-desc">Providers must ensure high-risk AI systems automatically record events over their lifetime.</p>
+        <div class="compliance-module"><span class="tag tag-trakr">TRAKR</span> automatic action recording</div>
+        <div class="compliance-module"><span class="tag tag-vitals">VITALS</span> real-time telemetry stream</div>
+      </div>
+      <div class="compliance-card">
+        <div class="compliance-article" style="color: #f87171;">Article 50</div>
+        <div class="compliance-title">Transparency</div>
+        <p class="compliance-desc">Deployers must inform users when they are interacting with an AI system.</p>
+        <div class="compliance-module"><span class="tag tag-guardrail">GUARDRAIL</span> policy-enforced disclosure</div>
+        <div class="compliance-module"><span class="tag tag-orchestrator">ORCHESTRATOR</span> action lifecycle control</div>
+      </div>
+      <div class="compliance-card">
+        <div class="compliance-article" style="color: #fbbf24;">Aug 2, 2026</div>
+        <div class="compliance-title">Deadline</div>
+        <p class="compliance-desc">Transparency and logging rules take effect August 2026. Non-compliance: up to €35M or 7% of global turnover.</p>
+        <div class="compliance-module"><span class="tag tag-healer">HEALER</span> audit-ready incident records</div>
+        <div class="compliance-module"><span class="tag tag-orchestrator">ORCHESTRATOR</span> full pipeline provenance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LICENSE -->
+<section id="license">
+  <div class="container">
+    <div class="section-label">License</div>
+    <h2 class="section-title">Free for everyone. Always.</h2>
+    <p class="section-sub">PROTOCOL is fully MIT-licensed open source. No tiers. No caps. No restrictions. Just build.</p>
+    <div class="license-card">
+      <div class="license-badge">MIT</div>
+      <h2>$0 <span>forever</span></h2>
+      <p>All modules. Unlimited agents. Source code on GitHub. No gatekeeping.</p>
+      <ul class="license-features">
+        <li>All 6 PROTOCOL modules</li>
+        <li>Unlimited concurrent agents</li>
+        <li>CLI + pip install</li>
+        <li>Full source code access</li>
+        <li>Module documentation</li>
+        <li>Modify, fork, re-sell</li>
+      </ul>
+      <a href="https://github.com/narko4u/PROTOCOL" class="btn-primary" target="_blank">View Source on GitHub →</a>
+    </div>
+
+    <!-- PROTOCOL Cloud -->
+    <div class="cloud-section" id="cloud">
+      <div>
+        <div class="section-label">PROTOCOL Cloud</div>
+        <h3 class="cloud-title">Let us run it for you</h3>
+        <p class="cloud-desc">
+          Same PROTOCOL, hosted and managed by Empire Labs. No infrastructure to manage.
+          No daemons to keep running. Just an API key and your agents are live.
+        </p>
+        <a href="mailto:contact@empirelabs.com.au?subject=PROTOCOL%20Cloud%20Inquiry" class="btn-primary">
+          Contact Sales →
+        </a>
+      </div>
+      <div>
+        <ul class="cloud-features">
+          <li>Fully managed hosting — uptime, scaling, backups</li>
+          <li>Per-agent billing — pay for what you use</li>
+          <li>EU AI Act compliance packages available</li>
+          <li>Priority support with direct access to the team</li>
+          <li>Custom module development for your stack</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 14px; text-align: center; margin-top: 32px;">
+      Built with ❤️ by Empire Labs for the agent community.
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="container">
+  <p>© 2026 Empire Labs Pty Ltd · PROTOCOL v0.2.0 · MIT License</p>
+  <a href="mailto:contact@empirelabs.com.au">contact@empirelabs.com.au</a>
+</footer>
+
+</body>
+</html>
