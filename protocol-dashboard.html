@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROTOCOL Dashboard — Agent Operating System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a12;
+      --bg-card: #13131e;
+      --bg-card-hover: #1a1a28;
+      --surface: #1e1e30;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --purple: #8b6cf7;
+      --purple-glow: rgba(139,108,247,0.2);
+      --purple-deep: #6d4fe0;
+      --text: #ffffff;
+      --text-secondary: #b8b8d0;
+      --text-muted: #8888a8;
+      --green: #34d399;
+      --pink: #f472b6;
+      --cyan: #22d3ee;
+      --rose: #f43f5e;
+      --amber: #fbbf24;
+      --blue: #60a5fa;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(52,211,153,0.1);
+      color: var(--green);
+      border: 1px solid rgba(52,211,153,0.2);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .back-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* ─── GRID ─── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+    .card:hover {
+      border-color: var(--border-hover);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .card-value {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+    .card-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .card-value.purple { color: var(--purple); }
+    .card-value.green { color: var(--green); }
+    .card-value.cyan { color: var(--cyan); }
+    .card-value.pink { color: var(--pink); }
+    .card-value.amber { color: var(--amber); }
+    .card-value.blue { color: var(--blue); }
+    .card-value.rose { color: var(--rose); }
+
+    /* ─── MODULE STATUS ─── */
+    .module-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .module-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+    }
+    .module-name {
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .module-port {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .module-status {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .module-status.online {
+      background: rgba(52,211,153,0.1);
+      color: var(--green);
+    }
+    .module-status.offline {
+      background: rgba(244,63,94,0.1);
+      color: var(--rose);
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline {
+      position: relative;
+      padding-left: 20px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--border);
+    }
+    .timeline-item {
+      padding: 8px 0;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 14px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--purple);
+      border: 2px solid var(--bg-card);
+    }
+    .timeline-item .event {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .timeline-item .time {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+    .timeline-item .detail {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; gap: 12px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1><div class="logo-icon">P</div> PROTOCOL Dashboard</h1>
+    <div class="header-right">
+      <a href="https://narko4u.github.io/PROTOCOL" class="back-link">← Back to Landing</a>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        All Systems Nominal
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Active Agents</div>
+      </div>
+      <div class="card-value purple">∞</div>
+      <div class="card-sub">Unlimited — no caps, no tiers</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Pipeline Latency</div>
+      </div>
+      <div class="card-value green">~160ms</div>
+      <div class="card-sub">End-to-end across all 6 modules</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">License</div>
+      </div>
+      <div class="card-value cyan">MIT</div>
+      <div class="card-sub">Free forever. Open source.</div>
+    </div>
+  </div>
+
+  <!-- MODULES + ACTIVITY -->
+  <div class="grid">
+    <!-- Module Status -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Module Status</div>
+      </div>
+      <div class="module-list">
+        <div class="module-item">
+          <div class="module-name">🧠 MEMSTORE <span class="module-port">:8500</span></div>
+          <span class="module-status online">Online</span>
+        </div>
+        <div class="module-item">
+          <div class="module-name">📋 TRAKR <span class="module-port">:8501</span></div>
+          <span class="module-status online">Online</span>
+        </div>
+        <div class="module-item">
+          <div class="module-name">🛡️ GUARDRAIL <span class="module-port">:8502</span></div>
+          <span class="module-status online">Online</span>
+        </div>
+        <div class="module-item">
+          <div class="module-name">📊 VITALS <span class="module-port">:8503</span></div>
+          <span class="module-status online">Online</span>
+        </div>
+        <div class="module-item">
+          <div class="module-name">💊 HEALER <span class="module-port">:8504</span></div>
+          <span class="module-status online">Online</span>
+        </div>
+        <div class="module-item">
+          <div class="module-name">⚙️ ORCHESTRATOR <span class="module-port">:8505</span></div>
+          <span class="module-status online">Online</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Pipeline Stats</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">MEMSTORE</span>
+            <span style="font-family: var(--mono); font-size: 12px; color: var(--green);">2ms</span>
+          </div>
+          <div style="height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: 10%; background: var(--green); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">TRAKR</span>
+            <span style="font-family: var(--mono); font-size: 12px; color: var(--cyan);">5ms</span>
+          </div>
+          <div style="height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: 20%; background: var(--cyan); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">GUARDRAIL</span>
+            <span style="font-family: var(--mono); font-size: 12px; color: var(--amber);">8ms</span>
+          </div>
+          <div style="height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: 35%; background: var(--amber); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">VITALS</span>
+            <span style="font-family: var(--mono); font-size: 12px; color: var(--blue);">3ms</span>
+          </div>
+          <div style="height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: 15%; background: var(--blue); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">HEALER</span>
+            <span style="font-family: var(--mono); font-size: 12px; color: var(--pink);">12ms</span>
+          </div>
+          <div style="height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: 50%; background: var(--pink); border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 13px; color: var(--text-secondary);">ORCHESTRATOR</span>
+            <span style="font-family: var(--mono); font-size: 12px; color: var(--purple);">130ms</span>
+          </div>
+          <div style="height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden;">
+            <div style="height: 100%; width: 80%; background: var(--purple); border-radius: 3px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Recent Activity</div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="time">12:24:43 UTC</div>
+          <div class="event">Initial commit</div>
+          <div class="detail">6 modules deployed · MIT licensed · Ready for community</div>
+        </div>
+        <div class="timeline-item">
+          <div class="time">v0.2.0</div>
+          <div class="event">Open source release</div>
+          <div class="detail">All code public · No tiers · Unlimited agents</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK START -->
+  <div class="card full-width" style="margin-top: 20px;">
+    <div class="card-header">
+      <div class="card-title">Quick Start</div>
+    </div>
+    <pre style="background: #0d0d1a; padding: 20px; border-radius: 12px; font-family: var(--mono); font-size: 13px; line-height: 1.8; overflow-x: auto; color: var(--text-secondary);"># Clone the repo
+git clone https://github.com/narko4u/PROTOCOL.git
+cd PROTOCOL
+
+# Install dependencies
+pip install -r requirements.txt  # or: pip install protocol-agent-os
+
+# Start all modules
+python3 memstore_server.py &
+python3 trakr_server.py &
+python3 guardrail_server.py &
+python3 vitals_server.py &
+python3 healer_server.py &
+python3 orchestrator_server.py &
+
+# Verify
+curl http://127.0.0.1:8505/health
+curl http://127.0.0.1:8505/modules</pre>
+  </div>
+
+</div>
+</body>
+</html>
