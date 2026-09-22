@@ -410,6 +410,19 @@ Need PROTOCOL hosted and managed? We run it for you — uptime, scaling, backups
   <a href="https://empirelabs.com.au">Empire Labs Pty Ltd</a> · ACN 693 862 145 · ABN 29 693 862 145
 </p>
 
+---
+
+## Acknowledgements
+
+PROTOCOL is built on the Python standard library alone - `http.server`,
+`sqlite3`, `json`, `uuid` - and has no third-party runtime dependencies. There
+is no upstream code to attribute beyond the language runtime.
+
+The sub-system documents and servers in this repository (Guardrail, Healer,
+Memstore, Orchestrator, Trakr, Vitals) are original work by Empire Labs Pty Ltd.
+
+---
+
 <p align="center">
   <a href="https://github.com/narko4u/PROTOCOL">GitHub</a> ·
   <a href="https://empirelabs1.gumroad.com/l/protocol-agent-os">Gumroad</a> ·
